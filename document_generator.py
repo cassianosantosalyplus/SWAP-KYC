@@ -61,11 +61,16 @@ if option != 2:
         print(f"[ {i} ] - {status}")
 
     kyc_choice = int(input(">>> "))
+    docs_number = int(input("Quantos documentos deseja gerar? "))
+    if kyc_choice < 0 or kyc_choice >= len(kyc_options):
+        print("Opção inválida.")
+        exit()
     desired_status = kyc_options[kyc_choice]
     valid_first_digits = get_first_digit_for_kyc_status(desired_status)
 
-    found_valid_document = False
-    while not found_valid_document:
+    final_response = []
+    kyc_status = ""
+    while len(final_response) < docs_number:
         response = requests.post(
             url=URL,
             headers=HEADERS,
@@ -73,9 +78,9 @@ if option != 2:
         )
         response = response.content.decode('utf-8')
         if int(response[0]) in valid_first_digits:
-            found_valid_document = True
-            final_response = response
-            kyc_status = get_kyc_status(final_response)
+            final_response.append(response)
+            if len(kyc_status) == 0:
+                kyc_status = get_kyc_status(response)
 else:
     response = requests.post(
         url=URL,
